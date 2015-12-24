@@ -26,9 +26,10 @@ class Scraper:
         tmp = {}
         df = pd.DataFrame()
         for va_facility in self.service_indexes:
+            base_name = "/".join(va_facility.split("/")[:-1])
             html = lxml.html.fromstring(requests.get(va_facility).text)
             service_names = [elem.text_content() for elem in html.xpath('//td[@headers="srv"]//a')]
-            links = html.xpath('//td[@headers="srv"]//a/@href')
+            links = [base_name+"/"+elem.split("/")[-1] for elem in html.xpath('//td[@headers="srv"]//a/@href')]
             locations = [elem.text_content() for elem in html.xpath('//td[@headers="loc"]')]
             phones = [elem.text_content() for elem in html.xpath('//td[@headers="ph"]')]
             descriptions = [elem.text_content() for elem in html.xpath('//td[@headers="srv"]//span')]
