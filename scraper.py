@@ -58,11 +58,18 @@ class ServiceAnalyzer:
             va_facility = self.df.ix[i]["va_facility"]
             counts.append(va_facility)
         counts = {elem:counts.count(elem) for elem in counts}
+        with open("services_count.txt","w") as f:
+            for place in counts.keys():
+                f.write(place+" has "+str(counts[place])+" services available.\n") 
+            
         return counts
     
     def descriptive_statistics(self):
         s = sp.array(self.service_counts.values())
         n,min_max,mean,var,skew,kurt = stats.describe(s)
+        with open("descriptive_statistics.txt","w") as f:
+            f.write("The mean number of services was: " + str(round(mean,3)) + "\n")
+            f.write("The standard deviation of the number of services offered was:" + str(round(math.sqrt(var)))+"\n")
         return {
             "n":n,
             "average":mean,
@@ -70,11 +77,27 @@ class ServiceAnalyzer:
             "skew":skew,
             "kurtosis":kurt
             }
+    
+    def output_service_names(self):
+        services = pd.DataFrame()
+        unique_names = []
+        for i in self.df.index:
+            services = services.append({"service_name":self.df.ix[i]["service_name"],"va_facility":self.df.ix[i]["va_facility"]},ignore_index=True)
+            service = self.df.ix[i]["service_name"]
+            if not service in unique_names:
+                unique_names.append(service)
+        services.to_csv("services.csv")
+        data = ""
+        for name in unique_names:
+            data += name+"\n"
+        with open("service_names.txt","w") as f:
+            f.write(data)
 
-
+    
 if __name__ == '__main__':
     #s = Scraper()
     #s.generate_services_csv()
     sa = ServiceAnalyzer()
     print sa.services_count()
     print sa.descriptive_statistics()
+    sa.output_service_names()
